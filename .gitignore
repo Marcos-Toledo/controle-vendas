@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+out/
+*.user
+.vs/
+.idea/
+
+# Node / Vite
+node_modules/
+dist/
+*.local
+
+# Env e segredos
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# Cobertura de testes
+coverage/
+TestResults/

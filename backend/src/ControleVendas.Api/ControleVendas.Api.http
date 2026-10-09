@@ -1,0 +1,16 @@
+@host = http://localhost:5125
+
+GET {{host}}/api/clientes
+Accept: application/json
+
+###
+
+GET {{host}}/api/produtos
+Accept: application/json
+
+###
+
+GET {{host}}/api/vendas
+Accept: application/json
+
+###
