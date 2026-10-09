@@ -1,6 +1,6 @@
-using ControleVendas.Application.Interfaces;
-using ControleVendas.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using ControleVendas.Api.Middlewares;
+using ControleVendas.Application;
+using ControleVendas.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +10,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ControleVendasDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ControleVendasDbContext>());
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(
+    builder.Configuration.GetConnectionString("DefaultConnection")!);
 
 builder.Services.AddCors(options =>
     options.AddPolicy(CorsPolicy, policy =>
@@ -22,6 +21,8 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()));
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

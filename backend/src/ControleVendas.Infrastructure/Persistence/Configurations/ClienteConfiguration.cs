@@ -8,7 +8,8 @@ public class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
 {
     public void Configure(EntityTypeBuilder<Cliente> builder)
     {
-        builder.ToTable("clientes");
+        builder.ToTable("clientes", t =>
+            t.HasCheckConstraint("ck_clientes_cpf_apenas_digitos", "cpf ~ '^[0-9]{11}$'"));
 
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).HasColumnName("id").UseIdentityAlwaysColumn();

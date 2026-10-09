@@ -8,7 +8,11 @@ public class ItemVendaConfiguration : IEntityTypeConfiguration<ItemVenda>
 {
     public void Configure(EntityTypeBuilder<ItemVenda> builder)
     {
-        builder.ToTable("itens_venda");
+        builder.ToTable("itens_venda", t =>
+        {
+            t.HasCheckConstraint("ck_itens_quantidade_positiva", "quantidade > 0");
+            t.HasCheckConstraint("ck_itens_preco_positivo", "preco_unitario >= 0");
+        });
 
         builder.HasKey(i => i.Id);
         builder.Property(i => i.Id).HasColumnName("id").UseIdentityAlwaysColumn();

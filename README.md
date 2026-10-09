@@ -9,7 +9,7 @@ Desenvolvido como teste prático — requisitos no escopo do desafio.
 
 | Camada    | Tecnologia                                              |
 | --------- | ------------------------------------------------------- |
-| Frontend  | React 19 + TypeScript + Vite                            |
+| Frontend  | React 19 + TypeScript + Vite + Tailwind CSS + Router    |
 | Backend   | .NET 8 (ASP.NET Core, C#) + Entity Framework Core 8     |
 | Banco     | PostgreSQL 16 (SQL Server/MySQL seriam equivalentes)    |
 | Testes    | xUnit                                                   |
@@ -37,6 +37,7 @@ backend/
 │   │   └── Services/
 │   ├── ControleVendas.Infrastructure/  # EF Core, DbContext, repositórios
 │   │   ├── Persistence/Configurations/ #   mapeamentos Fluent API
+│   │   ├── Persistence/Migrations/     #   InitialCreate (paridade com o script)
 │   │   └── Repositories/
 │   └── ControleVendas.Api/             # controllers, middlewares, Swagger
 └── tests/
@@ -101,6 +102,11 @@ Alternativa sem Docker: com um PostgreSQL rodando, execute o script manualmente:
 psql -U postgres -f database/01_create_schema.sql
 ```
 
+Também há uma migration EF (`InitialCreate`) com paridade total ao script —
+num banco **vazio**, `dotnet ef database update` gera o mesmo schema
+(requer `dotnet tool restore` no diretório `backend/`). Use **ou** o script
+**ou** a migration, nunca os dois.
+
 Ajuste a connection string em
 `backend/src/ControleVendas.Api/appsettings.json` se necessário.
 
@@ -133,7 +139,7 @@ cd backend
 dotnet test
 ```
 
-## API (endpoints planejados)
+## API
 
 | Método | Rota                          | Descrição                                |
 | ------ | ----------------------------- | ---------------------------------------- |

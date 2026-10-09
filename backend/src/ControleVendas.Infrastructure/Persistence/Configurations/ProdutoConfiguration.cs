@@ -8,7 +8,8 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
 {
     public void Configure(EntityTypeBuilder<Produto> builder)
     {
-        builder.ToTable("produtos");
+        builder.ToTable("produtos", t =>
+            t.HasCheckConstraint("ck_produtos_valor_positivo", "valor_unitario >= 0"));
 
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).HasColumnName("id").UseIdentityAlwaysColumn();
