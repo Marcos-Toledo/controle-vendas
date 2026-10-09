@@ -57,6 +57,24 @@ constraints de obrigatoriedade — script completo em
 clientes ──────< vendas ──────< itens_venda >────── produtos
 ```
 
+Resumo do schema:
+
+```
+clientes    (id PK, cpf UNIQUE NOT NULL, nome NOT NULL,
+             data_nascimento, email, telefone,
+             criado_em, atualizado_em)
+
+produtos    (id PK, nome UNIQUE NOT NULL, valor_unitario NUMERIC(18,2) NOT NULL,
+             criado_em, atualizado_em)
+
+vendas      (id PK, cliente_id FK NOT NULL, data_venda NOT NULL,
+             valor_total NUMERIC(18,2) NOT NULL, criado_em)
+
+itens_venda (id PK, venda_id FK NOT NULL, produto_id FK NOT NULL,
+             quantidade INT NOT NULL, preco_unitario NUMERIC(18,2) NOT NULL,
+             total_item NUMERIC(18,2) GENERATED ALWAYS AS (quantidade * preco_unitario))
+```
+
 Decisões de modelagem:
 
 - **`clientes.cpf` com índice único** — a validação de duplicidade exigida no
