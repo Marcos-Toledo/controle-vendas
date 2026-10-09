@@ -107,6 +107,11 @@ num banco **vazio**, `dotnet ef database update` gera o mesmo schema
 (requer `dotnet tool restore` no diretório `backend/`). Use **ou** o script
 **ou** a migration, nunca os dois.
 
+Para referência, o SQL gerado pela migration está versionado em
+[`database/02_ef_migration_script.sql`](database/02_ef_migration_script.sql)
+(script idempotente — pode ser executado com `psql -f` num banco vazio em
+vez de `dotnet ef database update`).
+
 Ajuste a connection string em
 `backend/src/ControleVendas.Api/appsettings.json` se necessário.
 
