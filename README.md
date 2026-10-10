@@ -97,8 +97,9 @@ Decisões de modelagem:
 
 ### Pré-requisitos
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download) (ou superior — o projeto
-  mira `net8.0`)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download) — o projeto mira
+  `net8.0`. Um SDK mais novo (9/10) também compila, mas exige o **runtime 8**
+  instalado para rodar/testar (ou `export DOTNET_ROLL_FORWARD=LatestMajor`)
 - [Node.js 20+](https://nodejs.org) e [pnpm](https://pnpm.io) (`npm` também
   funciona, trocando `pnpm` por `npm` nos comandos)
 - [Docker](https://www.docker.com) para o PostgreSQL — ou uma instância própria
