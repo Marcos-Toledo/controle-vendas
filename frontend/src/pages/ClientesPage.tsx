@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { api } from '../services/api'
 import type { Cliente, ClientePayload } from '../types'
-import { formatCpf, formatDate, maskCpf } from '../utils/format'
+import { formatCpf, formatDate, formatTelefone, maskCpf, maskTelefone } from '../utils/format'
 import { Feedback, btnDanger, btnLink, btnPrimary, btnSecondary, inputCls, labelCls } from '../components/ui'
 
 const formVazio: ClientePayload = {
@@ -47,7 +47,7 @@ export default function ClientesPage() {
       nome: cliente.nome,
       dataNascimento: cliente.dataNascimento,
       email: cliente.email,
-      telefone: cliente.telefone,
+      telefone: cliente.telefone ? formatTelefone(cliente.telefone) : null,
     })
     setEditandoId(cliente.id)
     setMostrandoForm(true)
@@ -66,7 +66,7 @@ export default function ClientesPage() {
       nome: form.nome.trim(),
       dataNascimento: form.dataNascimento || null,
       email: form.email?.trim() || null,
-      telefone: form.telefone?.trim() || null,
+      telefone: form.telefone?.replace(/\D/g, '') || null,
     }
 
     try {
@@ -163,9 +163,10 @@ export default function ClientesPage() {
             <div>
               <label className={labelCls}>Telefone</label>
               <input
+                type="tel"
                 className={inputCls}
                 value={form.telefone ?? ''}
-                onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+                onChange={(e) => setForm({ ...form, telefone: maskTelefone(e.target.value) })}
                 placeholder="(11) 98765-4321"
               />
             </div>
@@ -206,7 +207,9 @@ export default function ClientesPage() {
                   {cliente.dataNascimento ? formatDate(cliente.dataNascimento) : '—'}
                 </td>
                 <td className="px-4 py-3">{cliente.email ?? '—'}</td>
-                <td className="px-4 py-3">{cliente.telefone ?? '—'}</td>
+                <td className="px-4 py-3">
+                  {cliente.telefone ? formatTelefone(cliente.telefone) : '—'}
+                </td>
                 <td className="px-4 py-3 text-right">
                   <button type="button" className={`${btnLink} mr-3`} onClick={() => editar(cliente)}>
                     Editar

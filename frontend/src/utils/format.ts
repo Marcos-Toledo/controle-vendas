@@ -14,6 +14,21 @@ export function maskCpf(valor: string): string {
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
 }
 
+export function formatTelefone(tel: string): string {
+  const d = tel.replace(/\D/g, '')
+  if (d.length === 11) return d.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
+  if (d.length === 10) return d.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3')
+  return tel
+}
+
+export function maskTelefone(valor: string): string {
+  const d = valor.replace(/\D/g, '').slice(0, 11)
+  const parcial = d.replace(/(\d{2})(\d)/, '($1) $2')
+  return d.length <= 10
+    ? parcial.replace(/(\d{4})(\d{1,4})$/, '$1-$2')
+    : parcial.replace(/(\d{5})(\d{1,4})$/, '$1-$2')
+}
+
 export function formatDate(iso: string): string {
   return new Date(`${iso}T00:00:00`).toLocaleDateString('pt-BR')
 }
