@@ -29,6 +29,20 @@ export function maskTelefone(valor: string): string {
     : parcial.replace(/(\d{5})(\d{1,4})$/, '$1-$2')
 }
 
+export function maskMoeda(valor: string): string {
+  const d = valor.replace(/\D/g, '').slice(0, 13)
+  if (!d) return ''
+  return (Number(d) / 100).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
+export function moedaParaNumero(texto: string): number {
+  const d = texto.replace(/\D/g, '')
+  return d ? Number(d) / 100 : 0
+}
+
 export function formatDate(iso: string): string {
   return new Date(`${iso}T00:00:00`).toLocaleDateString('pt-BR')
 }

@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { api } from '../services/api'
 import type { Produto, ProdutoPayload } from '../types'
-import { formatBRL } from '../utils/format'
+import { formatBRL, maskMoeda, moedaParaNumero } from '../utils/format'
 import { Feedback, btnDanger, btnLink, btnPrimary, btnSecondary, inputCls, labelCls } from '../components/ui'
 
 const formVazio: ProdutoPayload = { nome: '', valorUnitario: 0 }
@@ -39,7 +39,7 @@ export default function ProdutosPage() {
 
   function editar(produto: Produto) {
     setForm({ nome: produto.nome, valorUnitario: produto.valorUnitario })
-    setValorTexto(String(produto.valorUnitario).replace('.', ','))
+    setValorTexto(maskMoeda(String(Math.round(produto.valorUnitario * 100))))
     setEditandoId(produto.id)
     setMostrandoForm(true)
     setErro(null)
@@ -54,7 +54,7 @@ export default function ProdutosPage() {
 
     const payload: ProdutoPayload = {
       nome: form.nome.trim(),
-      valorUnitario: Number(valorTexto.replace(',', '.')) || 0,
+      valorUnitario: moedaParaNumero(valorTexto),
     }
 
     try {
@@ -123,12 +123,10 @@ export default function ProdutosPage() {
               <label className={labelCls}>Valor unitário *</label>
               <input
                 className={inputCls}
-                inputMode="decimal"
+                inputMode="numeric"
                 placeholder="0,00"
                 value={valorTexto}
-                onChange={(e) =>
-                  setValorTexto(e.target.value.replace(/[^\d,.-]/g, ''))
-                }
+                onChange={(e) => setValorTexto(maskMoeda(e.target.value))}
                 required
               />
             </div>
