@@ -145,6 +145,11 @@ dotnet run --project src/ControleVendas.Api
 API em `http://localhost:5125` — Swagger UI em
 `http://localhost:5125/swagger`.
 
+> **Erro `You must install or update .NET to run this application`?**
+> Significa que só há runtime mais novo instalado (o app mira `net8.0`).
+> Instale o [.NET 8 Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
+> **ou** rode com `DOTNET_ROLL_FORWARD=LatestMajor dotnet run --project src/ControleVendas.Api`.
+
 ### 3. Frontend
 
 ```bash
@@ -162,6 +167,17 @@ pelo proxy do Vite.
 cd backend
 dotnet test
 ```
+
+### Problemas comuns
+
+- **`Failed to bind to address … address already in use`** — já existe outra
+  instância da API (5125) ou do Vite (5173) rodando; encerre-a antes de subir
+  uma nova.
+- **API sobe mas falha ao acessar o banco** — o Postgres não está no ar:
+  `docker compose up -d` e confira `docker compose ps`.
+- **Vite abre outra porta (ex.: 5174)** — a 5173 está ocupada; a chamada à API
+  continua funcionando pelo proxy, mas o acesso é pela porta exibida no
+  terminal.
 
 ## API
 
