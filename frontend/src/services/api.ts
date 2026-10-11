@@ -1,8 +1,8 @@
 export class ApiError extends Error {
   readonly status: number
 
-  constructor(status: number, mensagem: string) {
-    super(mensagem)
+  constructor(status: number, message: string) {
+    super(message)
     this.name = 'ApiError'
     this.status = status
   }
@@ -15,14 +15,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   })
 
   if (!res.ok) {
-    let mensagem = 'Erro ao comunicar com o servidor.'
+    let message = 'Erro ao comunicar com o servidor.'
     try {
       const data = await res.json()
-      if (data?.mensagem) mensagem = data.mensagem
+      if (data?.message) message = data.message
     } catch {
       // resposta sem corpo JSON — mantém a mensagem padrão
     }
-    throw new ApiError(res.status, mensagem)
+    throw new ApiError(res.status, message)
   }
 
   if (res.status === 204) return undefined as T

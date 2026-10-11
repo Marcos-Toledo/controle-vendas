@@ -18,23 +18,23 @@ export const btnDanger = 'text-sm font-medium text-red-600 hover:text-red-800'
 export const btnLink = 'text-sm font-medium text-indigo-600 hover:text-indigo-800'
 
 export function Feedback({
-  erro,
-  sucesso,
+  error,
+  success,
 }: {
-  erro?: string | null
-  sucesso?: string | null
+  error?: string | null
+  success?: string | null
 }) {
-  if (erro) {
+  if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-        {erro}
+        {error}
       </div>
     )
   }
-  if (sucesso) {
+  if (success) {
     return (
       <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-        {sucesso}
+        {success}
       </div>
     )
   }

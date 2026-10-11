@@ -1,14 +1,14 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
-import ClientesPage from './pages/ClientesPage'
-import NovaVendaPage from './pages/NovaVendaPage'
-import ProdutosPage from './pages/ProdutosPage'
-import VendasPage from './pages/VendasPage'
+import CustomersPage from './pages/CustomersPage'
+import NewSalePage from './pages/NewSalePage'
+import ProductsPage from './pages/ProductsPage'
+import SalesPage from './pages/SalesPage'
 
 const links = [
-  { to: '/vendas/nova', label: 'Nova Venda' },
-  { to: '/vendas', label: 'Vendas', end: true },
-  { to: '/clientes', label: 'Clientes' },
-  { to: '/produtos', label: 'Produtos' },
+  { to: '/sales/new', label: 'Nova Venda' },
+  { to: '/sales', label: 'Vendas', end: true },
+  { to: '/customers', label: 'Clientes' },
+  { to: '/products', label: 'Produtos' },
 ]
 
 export default function App() {
@@ -42,11 +42,11 @@ export default function App() {
 
       <main className="mx-auto max-w-6xl px-4 py-6">
         <Routes>
-          <Route path="/" element={<Navigate to="/vendas/nova" replace />} />
-          <Route path="/vendas/nova" element={<NovaVendaPage />} />
-          <Route path="/vendas" element={<VendasPage />} />
-          <Route path="/clientes" element={<ClientesPage />} />
-          <Route path="/produtos" element={<ProdutosPage />} />
+          <Route path="/" element={<Navigate to="/sales/new" replace />} />
+          <Route path="/sales/new" element={<NewSalePage />} />
+          <Route path="/sales" element={<SalesPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/products" element={<ProductsPage />} />
         </Routes>
       </main>
     </div>

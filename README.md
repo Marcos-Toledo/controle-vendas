@@ -5,6 +5,10 @@ lançamento de **vendas** com múltiplos itens.
 
 Desenvolvido como teste prático — requisitos no escopo do desafio.
 
+> **Convenção**: o código-fonte (backend, frontend e schema do banco) está em
+> inglês; mensagens de erro, textos da interface e esta documentação estão em
+> pt-BR.
+
 ## Stack
 
 | Camada    | Tecnologia                                              |
@@ -27,21 +31,21 @@ Backend em camadas seguindo Clean Architecture e SOLID:
 
 ```
 backend/
-├── ControleVendas.sln
+├── SalesControl.sln
 ├── src/
-│   ├── ControleVendas.Domain/          # entidades e regras de negócio puras
-│   │   └── Entities/                   #   Cliente, Produto, Venda, ItemVenda
-│   ├── ControleVendas.Application/     # casos de uso, DTOs, validações
+│   ├── SalesControl.Domain/          # entidades e regras de negócio puras
+│   │   └── Entities/                 #   Customer, Product, Sale, SaleItem
+│   ├── SalesControl.Application/     # casos de uso, DTOs, validações
 │   │   ├── DTOs/
-│   │   ├── Interfaces/                 #   portas (repositórios, IUnitOfWork)
+│   │   ├── Interfaces/               #   portas (repositórios, IUnitOfWork)
 │   │   └── Services/
-│   ├── ControleVendas.Infrastructure/  # EF Core, DbContext, repositórios
+│   ├── SalesControl.Infrastructure/  # EF Core, DbContext, repositórios
 │   │   ├── Persistence/Configurations/ #   mapeamentos Fluent API
 │   │   ├── Persistence/Migrations/     #   InitialCreate (paridade com o script)
 │   │   └── Repositories/
-│   └── ControleVendas.Api/             # controllers, middlewares, Swagger
+│   └── SalesControl.Api/             # controllers, middlewares, Swagger
 └── tests/
-    └── ControleVendas.Tests/           # xUnit — regras de negócio
+    └── SalesControl.Tests/           # xUnit — regras de negócio
 ```
 
 Direção das dependências: `Api → Application → Domain` e
@@ -54,39 +58,39 @@ constraints de obrigatoriedade — script completo em
 [`database/01_create_schema.sql`](database/01_create_schema.sql).
 
 ```
-clientes ──────< vendas ──────< itens_venda >────── produtos
+customers ──────< sales ──────< sale_items >────── products
 ```
 
 Resumo do schema:
 
 ```
-clientes    (id PK, cpf UNIQUE NOT NULL, nome NOT NULL,
-             data_nascimento, email, telefone,
-             criado_em, atualizado_em)
+customers  (id PK, cpf UNIQUE NOT NULL, name NOT NULL,
+            birth_date, email, phone,
+            created_at, updated_at)
 
-produtos    (id PK, nome UNIQUE NOT NULL, valor_unitario NUMERIC(18,2) NOT NULL,
-             criado_em, atualizado_em)
+products   (id PK, name UNIQUE NOT NULL, unit_price NUMERIC(18,2) NOT NULL,
+            created_at, updated_at)
 
-vendas      (id PK, cliente_id FK NOT NULL, data_venda NOT NULL,
-             valor_total NUMERIC(18,2) NOT NULL, criado_em)
+sales      (id PK, customer_id FK NOT NULL, sale_date NOT NULL,
+            total_amount NUMERIC(18,2) NOT NULL, created_at)
 
-itens_venda (id PK, venda_id FK NOT NULL, produto_id FK NOT NULL,
-             quantidade INT NOT NULL, preco_unitario NUMERIC(18,2) NOT NULL,
-             total_item NUMERIC(18,2) GENERATED ALWAYS AS (quantidade * preco_unitario))
+sale_items (id PK, sale_id FK NOT NULL, product_id FK NOT NULL,
+            quantity INT NOT NULL, unit_price NUMERIC(18,2) NOT NULL,
+            item_total NUMERIC(18,2) GENERATED ALWAYS AS (quantity * unit_price))
 ```
 
 Decisões de modelagem:
 
-- **`clientes.cpf` com índice único** — a validação de duplicidade exigida no
+- **`customers.cpf` com índice único** — a validação de duplicidade exigida no
   escopo existe no banco, não só na aplicação. O índice também acelera a busca
   por CPF na tela de vendas.
-- **`produtos.nome` com índice único** — mesma regra de duplicidade.
-- **`itens_venda.preco_unitario` gravado no item** — preserva o preço do
+- **`products.name` com índice único** — mesma regra de duplicidade.
+- **`sale_items.unit_price` gravado no item** — preserva o preço do
   momento da venda; mudanças futuras no cadastro do produto não alteram o
   histórico.
-- **`itens_venda.total_item` coluna gerada** (`quantidade * preco_unitario`) —
+- **`sale_items.item_total` coluna gerada** (`quantity * unit_price`) —
   total por item garantido pelo banco.
-- **`vendas.valor_total` desnormalizado de forma controlada** — calculado pela
+- **`sales.total_amount` desnormalizado de forma controlada** — calculado pela
   aplicação na gravação, agiliza listagens; os itens continuam a fonte da
   verdade.
 - **`ON DELETE RESTRICT` em cliente/produto** usados em vendas — preserva a
@@ -132,14 +136,14 @@ Para referência, o SQL gerado pela migration está versionado em
 vez de `dotnet ef database update`).
 
 Ajuste a connection string em
-`backend/src/ControleVendas.Api/appsettings.json` se necessário.
+`backend/src/SalesControl.Api/appsettings.json` se necessário.
 
 ### 2. Backend
 
 ```bash
 cd backend
 dotnet restore
-dotnet run --project src/ControleVendas.Api
+dotnet run --project src/SalesControl.Api
 ```
 
 API em `http://localhost:5125` — Swagger UI em
@@ -148,7 +152,7 @@ API em `http://localhost:5125` — Swagger UI em
 > **Erro `You must install or update .NET to run this application`?**
 > Significa que só há runtime mais novo instalado (o app mira `net8.0`).
 > Instale o [.NET 8 Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
-> **ou** rode com `DOTNET_ROLL_FORWARD=LatestMajor dotnet run --project src/ControleVendas.Api`.
+> **ou** rode com `DOTNET_ROLL_FORWARD=LatestMajor dotnet run --project src/SalesControl.Api`.
 
 ### 3. Frontend
 
@@ -181,21 +185,22 @@ dotnet test
 
 ## API
 
-| Método | Rota                          | Descrição                                |
-| ------ | ----------------------------- | ---------------------------------------- |
-| GET    | `/api/clientes`               | Lista clientes                           |
-| GET    | `/api/clientes/buscar?termo=` | Busca por CPF ou nome (tela de vendas)   |
-| POST   | `/api/clientes`               | Cadastra (409 se CPF duplicado)          |
-| PUT    | `/api/clientes/{id}`          | Atualiza                                 |
-| DELETE | `/api/clientes/{id}`          | Remove (restrito se houver vendas)       |
-| GET    | `/api/produtos`               | Lista produtos                           |
-| POST   | `/api/produtos`               | Cadastra (409 se nome duplicado)         |
-| PUT    | `/api/produtos/{id}`          | Atualiza                                 |
-| DELETE | `/api/produtos/{id}`          | Remove                                   |
-| GET    | `/api/vendas`                 | Lista vendas com itens                   |
-| POST   | `/api/vendas`                 | Registra venda (calcula total no server) |
+| Método | Rota                           | Descrição                                |
+| ------ | ------------------------------ | ---------------------------------------- |
+| GET    | `/api/customers`               | Lista clientes                           |
+| GET    | `/api/customers/search?term=`  | Busca por CPF ou nome (tela de vendas)   |
+| POST   | `/api/customers`               | Cadastra (409 se CPF duplicado)          |
+| PUT    | `/api/customers/{id}`          | Atualiza                                 |
+| DELETE | `/api/customers/{id}`          | Remove (restrito se houver vendas)       |
+| GET    | `/api/products`                | Lista produtos                           |
+| POST   | `/api/products`                | Cadastra (409 se nome duplicado)         |
+| PUT    | `/api/products/{id}`           | Atualiza                                 |
+| DELETE | `/api/products/{id}`           | Remove                                   |
+| GET    | `/api/sales`                   | Lista vendas com itens                   |
+| POST   | `/api/sales`                   | Registra venda (calcula total no server) |
 
-Erros de validação retornam `400`/`409` com mensagens claras em pt-BR.
+Erros de validação retornam `400`/`409` com corpo `{ "message": "…" }` e
+mensagens claras em pt-BR.
 
 ## Validações e regras de negócio
 

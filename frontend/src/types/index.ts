@@ -1,56 +1,56 @@
-export interface Cliente {
+export interface Customer {
   id: number
   cpf: string
-  nome: string
-  dataNascimento: string | null
+  name: string
+  birthDate: string | null
   email: string | null
-  telefone: string | null
+  phone: string | null
 }
 
-export interface ClientePayload {
+export interface CustomerPayload {
   cpf: string
-  nome: string
-  dataNascimento: string | null
+  name: string
+  birthDate: string | null
   email: string | null
-  telefone: string | null
+  phone: string | null
 }
 
-export interface Produto {
+export interface Product {
   id: number
-  nome: string
-  valorUnitario: number
+  name: string
+  unitPrice: number
 }
 
-export interface ProdutoPayload {
-  nome: string
-  valorUnitario: number
+export interface ProductPayload {
+  name: string
+  unitPrice: number
 }
 
-export interface ItemVenda {
-  produtoId: number
-  produtoNome: string
-  quantidade: number
-  precoUnitario: number
-  totalItem: number
+export interface SaleItem {
+  productId: number
+  productName: string
+  quantity: number
+  unitPrice: number
+  itemTotal: number
 }
 
-export interface Venda {
+export interface Sale {
   id: number
-  clienteId: number
-  clienteNome: string
-  clienteCpf: string
-  dataVenda: string
-  valorTotal: number
-  itens: ItemVenda[]
+  customerId: number
+  customerName: string
+  customerCpf: string
+  saleDate: string
+  totalAmount: number
+  items: SaleItem[]
 }
 
-export interface NovaVendaItemPayload {
-  produtoId: number
-  quantidade: number
+export interface NewSaleItemPayload {
+  productId: number
+  quantity: number
 }
 
-export interface NovaVendaPayload {
-  clienteId: number
-  dataVenda?: string
-  itens: NovaVendaItemPayload[]
+export interface NewSalePayload {
+  customerId: number
+  saleDate?: string
+  items: NewSaleItemPayload[]
 }

@@ -5,102 +5,102 @@
 -- em NUMERIC(18,2) para precisão exata.
 -- =============================================================
 
-CREATE DATABASE controle_vendas;
+CREATE DATABASE sales_control;
 
-\c controle_vendas;
+\c sales_control;
 
 BEGIN;
 
 -- -------------------------------------------------------------
--- clientes
+-- customers
 -- CPF é a chave de negócio: índice único garante a validação de
 -- duplicidade exigida no escopo, além da checagem na aplicação.
 -- -------------------------------------------------------------
-CREATE TABLE clientes (
-    id               BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    cpf              VARCHAR(11)  NOT NULL,
-    nome             VARCHAR(200) NOT NULL,
-    data_nascimento  DATE         NULL,
-    email            VARCHAR(200) NULL,
-    telefone         VARCHAR(20)  NULL,
-    criado_em        TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    atualizado_em    TIMESTAMPTZ  NOT NULL DEFAULT now(),
+CREATE TABLE customers (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    cpf         VARCHAR(11)  NOT NULL,
+    name        VARCHAR(200) NOT NULL,
+    birth_date  DATE         NULL,
+    email       VARCHAR(200) NULL,
+    phone       VARCHAR(20)  NULL,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
 
-    CONSTRAINT ck_clientes_cpf_apenas_digitos CHECK (cpf ~ '^[0-9]{11}$')
+    CONSTRAINT ck_customers_cpf_digits_only CHECK (cpf ~ '^[0-9]{11}$')
 );
 
 -- Validação de duplicidade de CPF (requisito) — índice único também
 -- otimiza a busca do cliente pelo CPF na tela de vendas.
-CREATE UNIQUE INDEX ux_clientes_cpf ON clientes (cpf);
+CREATE UNIQUE INDEX ux_customers_cpf ON customers (cpf);
 
 -- Apoia a busca por nome na tela de vendas (ILIKE 'termo%').
-CREATE INDEX ix_clientes_nome ON clientes (nome);
+CREATE INDEX ix_customers_name ON customers (name);
 
 
 -- -------------------------------------------------------------
--- produtos
+-- products
 -- Nome é único por requisito de validação de duplicidade.
 -- -------------------------------------------------------------
-CREATE TABLE produtos (
-    id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nome            VARCHAR(200)     NOT NULL,
-    valor_unitario  NUMERIC(18, 2)   NOT NULL,
-    criado_em       TIMESTAMPTZ      NOT NULL DEFAULT now(),
-    atualizado_em   TIMESTAMPTZ      NOT NULL DEFAULT now(),
+CREATE TABLE products (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name        VARCHAR(200)     NOT NULL,
+    unit_price  NUMERIC(18, 2)   NOT NULL,
+    created_at  TIMESTAMPTZ      NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ      NOT NULL DEFAULT now(),
 
-    CONSTRAINT ck_produtos_valor_positivo CHECK (valor_unitario >= 0)
+    CONSTRAINT ck_products_unit_price_non_negative CHECK (unit_price >= 0)
 );
 
-CREATE UNIQUE INDEX ux_produtos_nome ON produtos (nome);
+CREATE UNIQUE INDEX ux_products_name ON products (name);
 
 
 -- -------------------------------------------------------------
--- vendas
--- Cabeçalho da operação. valor_total é desnormalizado de forma
+-- sales
+-- Cabeçalho da operação. total_amount é desnormalizado de forma
 -- controlada (calculado pela aplicação na gravação) para leitura
 -- rápida em listagens — os itens permanecem a fonte da verdade.
 -- -------------------------------------------------------------
-CREATE TABLE vendas (
-    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    cliente_id   BIGINT          NOT NULL,
-    data_venda   DATE            NOT NULL DEFAULT CURRENT_DATE,
-    valor_total  NUMERIC(18, 2)  NOT NULL DEFAULT 0,
-    criado_em    TIMESTAMPTZ     NOT NULL DEFAULT now(),
+CREATE TABLE sales (
+    id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    customer_id   BIGINT          NOT NULL,
+    sale_date     DATE            NOT NULL DEFAULT CURRENT_DATE,
+    total_amount  NUMERIC(18, 2)  NOT NULL DEFAULT 0,
+    created_at    TIMESTAMPTZ     NOT NULL DEFAULT now(),
 
-    CONSTRAINT fk_vendas_cliente
-        FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+    CONSTRAINT fk_sales_customer
+        FOREIGN KEY (customer_id) REFERENCES customers (id)
         ON DELETE RESTRICT
 );
 
-CREATE INDEX ix_vendas_cliente   ON vendas (cliente_id);
-CREATE INDEX ix_vendas_data      ON vendas (data_venda);
+CREATE INDEX ix_sales_customer   ON sales (customer_id);
+CREATE INDEX ix_sales_date       ON sales (sale_date);
 
 
 -- -------------------------------------------------------------
--- itens_venda
--- preco_unitario é copiado do produto no momento da venda para
+-- sale_items
+-- unit_price é copiado do produto no momento da venda para
 -- preservar o histórico: alterações futuras de preço no cadastro
 -- não afetam vendas já registradas.
 -- -------------------------------------------------------------
-CREATE TABLE itens_venda (
-    id             BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    venda_id       BIGINT          NOT NULL,
-    produto_id     BIGINT          NOT NULL,
-    quantidade     INTEGER         NOT NULL,
-    preco_unitario NUMERIC(18, 2)  NOT NULL,
-    total_item     NUMERIC(18, 2)  GENERATED ALWAYS AS (quantidade * preco_unitario) STORED,
+CREATE TABLE sale_items (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    sale_id     BIGINT          NOT NULL,
+    product_id  BIGINT          NOT NULL,
+    quantity    INTEGER         NOT NULL,
+    unit_price  NUMERIC(18, 2)  NOT NULL,
+    item_total  NUMERIC(18, 2)  GENERATED ALWAYS AS (quantity * unit_price) STORED,
 
-    CONSTRAINT fk_itens_venda
-        FOREIGN KEY (venda_id) REFERENCES vendas (id)
+    CONSTRAINT fk_sale_items_sale
+        FOREIGN KEY (sale_id) REFERENCES sales (id)
         ON DELETE CASCADE,
-    CONSTRAINT fk_itens_produto
-        FOREIGN KEY (produto_id) REFERENCES produtos (id)
+    CONSTRAINT fk_sale_items_product
+        FOREIGN KEY (product_id) REFERENCES products (id)
         ON DELETE RESTRICT,
-    CONSTRAINT ck_itens_quantidade_positiva CHECK (quantidade > 0),
-    CONSTRAINT ck_itens_preco_positivo      CHECK (preco_unitario >= 0)
+    CONSTRAINT ck_sale_items_quantity_positive        CHECK (quantity > 0),
+    CONSTRAINT ck_sale_items_unit_price_non_negative  CHECK (unit_price >= 0)
 );
 
-CREATE INDEX ix_itens_venda   ON itens_venda (venda_id);
-CREATE INDEX ix_itens_produto ON itens_venda (produto_id);
+CREATE INDEX ix_sale_items_sale     ON sale_items (sale_id);
+CREATE INDEX ix_sale_items_product  ON sale_items (product_id);
 
 COMMIT;
