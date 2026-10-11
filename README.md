@@ -199,14 +199,15 @@ dotnet test
 | GET    | `/api/sales`                   | Lista vendas com itens                   |
 | POST   | `/api/sales`                   | Registra venda (calcula total no server) |
 
-Erros de validação retornam `400`/`409` com corpo `{ "message": "…" }` e
-mensagens claras em pt-BR.
+Erros retornam `400`/`404`/`409` com corpo `{ "message": "…" }` e mensagens
+claras em pt-BR — todos documentados no Swagger via `ProducesResponseType`.
 
 ## Validações e regras de negócio
 
 - CPF: 11 dígitos, dígito verificador válido, único no banco
-- Cliente: nome obrigatório; e-mail validado quando informado
-- Produto: nome único; valor unitário ≥ 0
+- Cliente: nome obrigatório (máx. 200); e-mail validado quando informado;
+  data de nascimento não pode ser futura
+- Produto: nome único (máx. 200); valor unitário obrigatório e ≥ 0
 - Venda: data sugere o dia atual; pelo menos 1 item; quantidade > 0; preço
   unitário capturado do produto no momento do lançamento; total calculado no
   backend (o frontend exibe, mas não define)

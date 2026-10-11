@@ -9,12 +9,14 @@ namespace SalesControl.Api.Controllers;
 public class CustomersController(ICustomerService service) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<CustomerResponse>), StatusCodes.Status200OK)]
     public Task<IReadOnlyList<CustomerResponse>> List(CancellationToken ct)
     {
         return service.ListAsync(ct);
     }
 
     [HttpGet("search")]
+    [ProducesResponseType(typeof(IReadOnlyList<CustomerResponse>), StatusCodes.Status200OK)]
     public Task<IReadOnlyList<CustomerResponse>> Search(
         [FromQuery] string term, CancellationToken ct)
     {
@@ -22,12 +24,17 @@ public class CustomersController(ICustomerService service) : ControllerBase
     }
 
     [HttpGet("{id:long}")]
+    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public Task<CustomerResponse> GetById(long id, CancellationToken ct)
     {
         return service.GetByIdAsync(id, ct);
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<CustomerResponse>> Create(
         CustomerRequest request, CancellationToken ct)
     {
@@ -36,6 +43,10 @@ public class CustomersController(ICustomerService service) : ControllerBase
     }
 
     [HttpPut("{id:long}")]
+    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public Task<CustomerResponse> Update(
         long id, CustomerRequest request, CancellationToken ct)
     {
@@ -43,6 +54,9 @@ public class CustomersController(ICustomerService service) : ControllerBase
     }
 
     [HttpDelete("{id:long}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(long id, CancellationToken ct)
     {
         await service.DeleteAsync(id, ct);

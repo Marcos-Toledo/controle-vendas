@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using SalesControl.Application.DTOs;
 using SalesControl.Application.Exceptions;
 
 namespace SalesControl.Api.Middlewares;
@@ -43,6 +44,8 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         context.Response.ContentType = "application/json";
 
         return context.Response.WriteAsync(
-            JsonSerializer.Serialize(new { message }));
+            JsonSerializer.Serialize(
+                new ErrorResponse(message),
+                new JsonSerializerOptions(JsonSerializerDefaults.Web)));
     }
 }

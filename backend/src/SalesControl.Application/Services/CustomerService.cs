@@ -82,16 +82,27 @@ public class CustomerService(ICustomerRepository customers, IUnitOfWork uow) : I
         var name = (request.Name ?? string.Empty).Trim();
         if (name.Length == 0)
             throw new ValidationException("O nome é obrigatório.");
+        if (name.Length > 200)
+            throw new ValidationException("O nome deve ter no máximo 200 caracteres.");
+
+        if (request.BirthDate > DateOnly.FromDateTime(DateTime.Today))
+            throw new ValidationException("A data de nascimento não pode ser futura.");
 
         var email = request.Email?.Trim();
+        if (email?.Length > 200)
+            throw new ValidationException("O e-mail deve ter no máximo 200 caracteres.");
         if (!string.IsNullOrEmpty(email) && !IsValidEmail(email))
             throw new ValidationException("E-mail inválido.");
+
+        var phone = request.Phone?.Trim();
+        if (phone?.Length > 20)
+            throw new ValidationException("O telefone deve ter no máximo 20 caracteres.");
 
         customer.Cpf = cpf;
         customer.Name = name;
         customer.BirthDate = request.BirthDate;
         customer.Email = string.IsNullOrEmpty(email) ? null : email;
-        customer.Phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone.Trim();
+        customer.Phone = string.IsNullOrWhiteSpace(phone) ? null : phone;
     }
 
     private static bool IsValidEmail(string email)

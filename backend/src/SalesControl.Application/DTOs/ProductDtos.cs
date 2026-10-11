@@ -2,7 +2,7 @@ namespace SalesControl.Application.DTOs;
 
 public record ProductRequest(
     string? Name,
-    decimal UnitPrice);
+    decimal? UnitPrice);
 
 public record ProductResponse(
     long Id,

@@ -9,18 +9,24 @@ namespace SalesControl.Api.Controllers;
 public class ProductsController(IProductService service) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<ProductResponse>), StatusCodes.Status200OK)]
     public Task<IReadOnlyList<ProductResponse>> List(CancellationToken ct)
     {
         return service.ListAsync(ct);
     }
 
     [HttpGet("{id:long}")]
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public Task<ProductResponse> GetById(long id, CancellationToken ct)
     {
         return service.GetByIdAsync(id, ct);
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ProductResponse>> Create(
         ProductRequest request, CancellationToken ct)
     {
@@ -29,6 +35,10 @@ public class ProductsController(IProductService service) : ControllerBase
     }
 
     [HttpPut("{id:long}")]
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public Task<ProductResponse> Update(
         long id, ProductRequest request, CancellationToken ct)
     {
@@ -36,6 +46,9 @@ public class ProductsController(IProductService service) : ControllerBase
     }
 
     [HttpDelete("{id:long}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(long id, CancellationToken ct)
     {
         await service.DeleteAsync(id, ct);

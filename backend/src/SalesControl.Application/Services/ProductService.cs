@@ -63,16 +63,20 @@ public class ProductService(IProductRepository products, IUnitOfWork uow) : IPro
         var name = (request.Name ?? string.Empty).Trim();
         if (name.Length == 0)
             throw new ValidationException("O nome é obrigatório.");
+        if (name.Length > 200)
+            throw new ValidationException("O nome deve ter no máximo 200 caracteres.");
 
         var withSameName = await products.GetByNameAsync(name, ct);
         if (withSameName is not null && withSameName.Id != product.Id)
             throw new ConflictException("Já existe um produto cadastrado com este nome.");
 
+        if (request.UnitPrice is null)
+            throw new ValidationException("O valor unitário é obrigatório.");
         if (request.UnitPrice < 0)
             throw new ValidationException("O valor unitário deve ser maior ou igual a zero.");
 
         product.Name = name;
-        product.UnitPrice = request.UnitPrice;
+        product.UnitPrice = request.UnitPrice.Value;
     }
 
     private static ProductResponse ToResponse(Product p)
